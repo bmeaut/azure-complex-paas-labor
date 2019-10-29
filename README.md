@@ -1,3 +1,7 @@
+https://github.com/bmeaut/cloud Labor anyag kiinduló projekt és megoldások
+
+Based on https://github.com/mark-szabo/techsummit-demo
+
 # MyNewHome - Find the next home of your pet!
 
 My demo at the Microsoft Tech Summit Budapest 2019 developer conference in the Application Development section, demonstarting the power of Azure Platform-as-a-Service solutions.
