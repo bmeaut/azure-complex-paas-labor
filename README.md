@@ -1,4 +1,4 @@
-https://github.com/bmeaut/cloud Labor anyag kiinduló projekt és megoldások
+https://github.com/bmeaut/cloud Complex-PaaS Labor anyag kiinduló projekt és megoldások (WIP)
 
 Based on https://github.com/mark-szabo/techsummit-demo
 
