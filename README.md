@@ -1,12 +1,12 @@
-https://github.com/bmeaut/cloud Complex-PaaS Labor anyag kiinduló projekt és megoldások (WIP)
+# https://github.com/bmeaut/cloud Complex-PaaS Labor anyag kiinduló projekt és megoldások
 
-Based on https://github.com/mark-szabo/techsummit-demo
+Laboranyag: https://github.com/bmeaut/cloud/blob/master/complex-paas.md
 
-# MyNewHome - Find the next home of your pet!
+## Based on 
 
-My demo at the Microsoft Tech Summit Budapest 2019 developer conference in the Application Development section, demonstarting the power of Azure Platform-as-a-Service solutions.
+https://github.com/mark-szabo/techsummit-demo
 
-### [Try out the live demo here!](https://ujgazdit-3.azurewebsites.net/)
+## Screenshots
 
 ![Screenshot](/readme-images/ScreenshotShadow.png)
 
