@@ -10,6 +10,7 @@ using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 using MyNewHome.Bll;
 
 namespace MyNewHome.Controllers
@@ -48,6 +49,16 @@ namespace MyNewHome.Controllers
         public async Task<ActionResult<Pet>> PostPet([FromBody] Pet pet)
         {
             pet = await _petService.AddPetAsync(pet);
+
+            // Retrieve a reference to a queue
+            var queue = _storage.CreateCloudQueueClient().GetQueueReference("newpets");
+
+            // Create the queue if it doesn't already exist
+            await queue.CreateIfNotExistsAsync();
+
+            // Create a message and add it to the queue
+            var message = new CloudQueueMessage(pet.ToString());
+            await queue.AddMessageAsync(message);
 
             return CreatedAtAction(nameof(GetPetsAsync), new { id = pet.Id }, pet);
         }

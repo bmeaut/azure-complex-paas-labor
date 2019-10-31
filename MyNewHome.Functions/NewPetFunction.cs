@@ -16,7 +16,7 @@ namespace MyNewHome.Functions
 {
     public static class NewPetFunction
     {
-        private const string ComputerVisionUrl = "TODO";
+        private const string ComputerVisionUrl = "https://mynewhome-computervision.cognitiveservices.azure.com//vision/v1.0/generateThumbnail?width=400&height=300&smartCropping=true";
 
         [FunctionName("NewPetFunction")]
         public static async Task Run(
