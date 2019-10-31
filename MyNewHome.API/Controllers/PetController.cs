@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -19,11 +21,21 @@ namespace MyNewHome.Controllers
     {
         private readonly PetService _petService;
         private readonly CloudStorageAccount _storage;
+        private readonly CustomVisionPredictionClient _customVision;
+        private readonly Guid _customVisionId;
 
-        public PetController(PetService petService, IConfiguration configuration)
+        public PetController(PetService petService, IConfiguration configuration, HttpClient httpClient)
         {
             _petService = petService;
             _storage = CloudStorageAccount.Parse(configuration["StorageConnectionString"]);
+
+            _customVision = new CustomVisionPredictionClient(httpClient, false)
+            {
+                ApiKey = configuration["CustomVision:ApiKey"],
+                Endpoint = configuration["CustomVision:Url"],
+            };
+
+            _customVisionId = new Guid(configuration["CustomVision:ProjectId"]);
         }
 
         [HttpGet]
@@ -64,9 +76,10 @@ namespace MyNewHome.Controllers
 
             var url = blob.Uri.AbsoluteUri;
 
-            // TODO recognize pet type
+            var prediction = await _customVision.ClassifyImageUrlAsync(_customVisionId, "Iteration2", new ImageUrl(url));
+            var tag = prediction.Predictions.OrderByDescending(p => p.Probability).First();
 
-            return Ok(new { url, type = "", probability = 0 });
+            return Ok(new { url, type = tag.TagName, probability = tag.Probability });
         }
 
         private string GetImageExtension(string contentType)
