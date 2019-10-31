@@ -48,8 +48,12 @@ namespace MyNewHome.Functions
                 var thumbnail = await response.Content.ReadAsStreamAsync();
                 await blob.UploadFromStreamAsync(thumbnail);
 
+                // Swap url host to CDN
+                var url = new Uri(new Uri(config.GetValue<string>("ImageCdnHost")), blob.Uri.PathAndQuery).AbsoluteUri;
+
                 // publish pet
                 var pet = await petService.GetPetAsync(petFromQueue.Id, petFromQueue.Type);
+                pet.ImageUrl = url;
                 pet.Published = true;
                 await petService.UpdatePetAsync(pet);
             }
