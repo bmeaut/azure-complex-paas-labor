@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyNewHome.ClassLibrary
+namespace MyNewHome.Bll
 {
     public static class CosmosResultSetIteratorExtension
     {

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace MyNewHome.ClassLibrary
+namespace MyNewHome.Bll
 {
     public class Pet
     {

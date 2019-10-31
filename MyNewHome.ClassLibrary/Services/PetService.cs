@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyNewHome.ClassLibrary
+namespace MyNewHome.Bll
 {
     public class PetService : IDisposable
     {
@@ -18,19 +18,11 @@ namespace MyNewHome.ClassLibrary
         private CosmosDatabase _database;
         private CosmosContainer _container;
 
-        private readonly IConfiguration _configuration;
         private readonly string _cosmosConnectionString;
 
-        [ActivatorUtilitiesConstructor]
         public PetService(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _cosmosConnectionString = _configuration.GetValue<string>("CosmosConnectionString");
-        }
-
-        public PetService(string cosmosConnectionString)
-        {
-            _cosmosConnectionString = cosmosConnectionString;
+            _cosmosConnectionString = configuration.GetValue<string>("CosmosConnectionString");
         }
 
         public async Task InitAsync()
