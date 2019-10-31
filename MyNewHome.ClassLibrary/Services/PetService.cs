@@ -59,16 +59,22 @@ namespace MyNewHome.Bll
 
             var newPet = await _container.Items.CreateItemAsync((int)pet.Type, pet);
 
+            // TODO Add App Insight custom event
+
             return newPet;
         }
 
         public async Task<Pet> UpdatePetAsync(Pet pet)
         {
+            await InitAsync();
+
             return await _container.Items.ReplaceItemAsync((int)pet.Type, pet.Id, pet);
         }
 
         public async Task DeletePetAsync(string id, PetType type)
         {
+            await InitAsync();
+
             await _container.Items.DeleteItemAsync<Pet>((int)type, id);
         }
 
