@@ -17,14 +17,13 @@ namespace MyNewHome.Functions
         private static readonly string cosmosConnectionString = Environment.GetEnvironmentVariable("CosmosConnectionString");
         private static readonly string computerVisionApiKey = Environment.GetEnvironmentVariable("ComputerVision");
         private static readonly string storageConnectionString = Environment.GetEnvironmentVariable("StorageConnectionString");
-        private static readonly Uri imageCdnHost = new Uri(Environment.GetEnvironmentVariable("ImageCdnHost"));
 
         private static readonly PetService petService = new PetService(cosmosConnectionString);
         private static readonly HttpClient client = new HttpClient();
         private static readonly CloudBlobClient storage = CloudStorageAccount.Parse(storageConnectionString).CreateCloudBlobClient();
 
         [FunctionName("NewPetFunction")]
-        public static async Task Run([QueueTrigger("newpets", Connection = "StorageConnectionString")]string queueItem, ILogger log)
+        public static async Task Run([QueueTrigger("newpets", Connection = "StorageConnectionString")]string queueItem, ILogger logger)
         {
             // Deserialize queue message
             var petFromQueue = JsonConvert.DeserializeObject<Pet>(queueItem);
@@ -50,19 +49,15 @@ namespace MyNewHome.Functions
                 var thumbnail = await response.Content.ReadAsStreamAsync();
                 await blob.UploadFromStreamAsync(thumbnail);
 
-                // Swap url host to CDN
-                var url = new Uri(imageCdnHost, blob.Uri.PathAndQuery).AbsoluteUri.ToString();
-
                 // Save url to Cosmos DB and publish
                 var pet = await petService.GetPetAsync(petFromQueue.Id, petFromQueue.Type);
-                pet.ImageUrl = url;
                 pet.Published = true;
                 await petService.UpdatePetAsync(pet);
             }
             else
             {
                 var result = await response.Content.ReadAsStringAsync();
-                log.LogError(result);
+                logger.LogError(result);
             }
         }
     }

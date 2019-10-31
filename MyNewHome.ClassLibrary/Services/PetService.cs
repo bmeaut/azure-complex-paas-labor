@@ -1,6 +1,7 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,16 +19,23 @@ namespace MyNewHome.ClassLibrary
         private CosmosContainer _container;
 
         private readonly IConfiguration _configuration;
+        private readonly string _cosmosConnectionString;
 
+        [ActivatorUtilitiesConstructor]
         public PetService(IConfiguration configuration)
         {
             _configuration = configuration;
+            _cosmosConnectionString = _configuration.GetValue<string>("CosmosConnectionString");
+        }
+
+        public PetService(string cosmosConnectionString)
+        {
+            _cosmosConnectionString = cosmosConnectionString;
         }
 
         public async Task InitAsync()
         {
-            var connectionString = _configuration.GetValue<string>("CosmosConnectionString");
-            _cosmosClient = new CosmosClient(connectionString);
+            _cosmosClient = new CosmosClient(_cosmosConnectionString);
             _database = await _cosmosClient.Databases.CreateDatabaseIfNotExistsAsync(DatabaseId);
             _container = await _database.Containers.CreateContainerIfNotExistsAsync(ContainerId, PartitionKey);
         }

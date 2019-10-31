@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyNewHome.API", "MyNewHome.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyNewHome.Functions", "MyNewHome.Functions\MyNewHome.Functions.csproj", "{D700F95F-0A7B-4BDF-9BF2-9A96F6E3E928}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyNewHome.ClassLibrary", "MyNewHome.ClassLibrary\MyNewHome.ClassLibrary.csproj", "{A745459B-D88B-47CE-8AAD-8AD911E133B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyNewHome.Bll", "MyNewHome.ClassLibrary\MyNewHome.Bll.csproj", "{A745459B-D88B-47CE-8AAD-8AD911E133B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
