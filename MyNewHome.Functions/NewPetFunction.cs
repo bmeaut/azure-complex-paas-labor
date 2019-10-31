@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -15,14 +16,18 @@ namespace MyNewHome.Functions
 {
     public static class NewPetFunction
     {
+        private const string ComputerVisionUrl = "TODO";
+
         [FunctionName("NewPetFunction")]
         public static async Task Run(
             [QueueTrigger("newpets", Connection = "StorageConnectionString")]string queueItem,
             ILogger logger,
-            PetService petService,
-            HttpClient client,
+            [ServiceLocator]IServiceProvider serviceProvider,
             [Config]IConfiguration config)
         {
+            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+            var petService = serviceProvider.GetRequiredService<PetService>();
+
             var _storage = CloudStorageAccount.Parse(config.GetValue<string>("StorageConnectionString")).CreateCloudBlobClient();
 
             // Deserialize queue message
@@ -30,18 +35,12 @@ namespace MyNewHome.Functions
 
             // Download image
             var blob = new CloudBlockBlob(new Uri(petFromQueue.ImageUrl), _storage);
-            var stream = await blob.OpenReadAsync();
-
-            var binaryReader = new BinaryReader(stream);
-            var byteArray = binaryReader.ReadBytes((int)stream.Length);
-            var content = new ByteArrayContent(byteArray);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            var image = await blob.DownloadBlobAsync();
 
             // Call Cognitive Services Computer Vision
+            var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.GetValue<string>("ComputerVision"));
-            var response = await client.PostAsync(
-                "https://westeurope.api.cognitive.microsoft.com/vision/v1.0/generateThumbnail?width=400&height=300&smartCropping=true",
-                content);
+            var response = await client.PostAsync(ComputerVisionUrl, image);
 
             if (response.IsSuccessStatusCode)
             {
@@ -59,6 +58,18 @@ namespace MyNewHome.Functions
                 var result = await response.Content.ReadAsStringAsync();
                 logger.LogError(result);
             }
+        }
+
+        static async Task<ByteArrayContent> DownloadBlobAsync(this CloudBlockBlob blob)
+        {
+            var stream = await blob.OpenReadAsync();
+
+            var binaryReader = new BinaryReader(stream);
+            var byteArray = binaryReader.ReadBytes((int)stream.Length);
+            var content = new ByteArrayContent(byteArray);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            return content;
         }
     }
 }

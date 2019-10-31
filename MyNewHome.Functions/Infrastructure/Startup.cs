@@ -38,7 +38,8 @@ namespace MyNewHome.Functions
 
             // add the ConfigProvider if you want to use IConfiguration in your function
             // the ConfigProvider is just an implementation of IExtensionConfigProvider to give you access to the current IConfiguration
-            builder.AddExtension<ConfigProvider>();
+            builder.AddExtension<ExtensionProvider<IConfiguration, ConfigAttribute>>();
+            builder.AddExtension<ExtensionProvider<IServiceProvider, ServiceLocatorAttribute>>();
 
             builder.Services.AddBllSerivices();
             builder.Services.AddHttpClient();
