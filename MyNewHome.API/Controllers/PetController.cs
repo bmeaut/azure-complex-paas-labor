@@ -24,12 +24,12 @@ namespace MyNewHome.Controllers
         private readonly CustomVisionPredictionClient _customVision;
         private readonly Guid _customVisionId;
 
-        public PetController(PetService petService, IConfiguration configuration, HttpClient httpClient)
+        public PetController(PetService petService, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _petService = petService;
             _storage = CloudStorageAccount.Parse(configuration["StorageConnectionString"]);
 
-            _customVision = new CustomVisionPredictionClient(httpClient, false)
+            _customVision = new CustomVisionPredictionClient(httpClientFactory.CreateClient(), false)
             {
                 ApiKey = configuration["CustomVision:ApiKey"],
                 Endpoint = configuration["CustomVision:Url"],
