@@ -19,10 +19,12 @@ namespace MyNewHome.Bll
         private CosmosContainer _container;
 
         private readonly string _cosmosConnectionString;
+        private readonly TelemetryClient _telemetryClient;
 
-        public PetService(IConfiguration configuration)
+        public PetService(IConfiguration configuration, TelemetryClient telemetryClient)
         {
             _cosmosConnectionString = configuration.GetValue<string>("CosmosConnectionString");
+            _telemetryClient = telemetryClient;
         }
 
         public async Task InitAsync()
@@ -59,7 +61,16 @@ namespace MyNewHome.Bll
 
             var newPet = await _container.Items.CreateItemAsync((int)pet.Type, pet);
 
-            // TODO Add App Insight custom event
+            _telemetryClient.TrackEvent(
+                "New pet added.",
+                new Dictionary<string, string>
+                {
+                    { "Pet type", pet.Type.ToString() },
+                },
+                new Dictionary<string, double>
+                {
+                    { "New pet", 1 },
+                });
 
             return newPet;
         }

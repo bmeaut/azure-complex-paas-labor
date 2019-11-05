@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
@@ -21,13 +22,15 @@ namespace MyNewHome.Controllers
     public class PetController : ControllerBase
     {
         private readonly PetService _petService;
+        private readonly TelemetryClient _telemetryClient;
         private readonly CloudStorageAccount _storage;
         private readonly CustomVisionPredictionClient _customVision;
         private readonly Guid _customVisionId;
 
-        public PetController(PetService petService, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public PetController(PetService petService, IConfiguration configuration, IHttpClientFactory httpClientFactory, TelemetryClient telemetryClient)
         {
             _petService = petService;
+            _telemetryClient = telemetryClient;
             _storage = CloudStorageAccount.Parse(configuration["StorageConnectionString"]);
 
             _customVision = new CustomVisionPredictionClient(httpClientFactory.CreateClient(), false)
@@ -87,10 +90,18 @@ namespace MyNewHome.Controllers
 
             var url = blob.Uri.AbsoluteUri;
 
-            var prediction = await _customVision.ClassifyImageUrlAsync(_customVisionId, "Iteration2", new ImageUrl(url));
-            var tag = prediction.Predictions.OrderByDescending(p => p.Probability).First();
+            try
+            {
+                var prediction = await _customVision.ClassifyImageUrlAsync(_customVisionId, "Iteration2", new ImageUrl(url));
+                var tag = prediction.Predictions.OrderByDescending(p => p.Probability).First();
 
-            return Ok(new { url, type = tag.TagName, probability = tag.Probability });
+                return Ok(new { url, type = tag.TagName, probability = tag.Probability });
+            }
+            catch (Exception ex)
+            {
+                _telemetryClient.TrackException(ex);
+                throw;
+            }
         }
 
         private string GetImageExtension(string contentType)
